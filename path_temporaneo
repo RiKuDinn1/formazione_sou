@@ -1,0 +1,4 @@
+#! /bin/bash/
+
+#Con questo comando sto modificando la variabile d'ambiente in modo temporaneo
+export PATH=$PATH:/usr/local/bin
