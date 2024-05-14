@@ -31,16 +31,21 @@
     AllowOverride All
     Require all granted
 </Directory> </code>
-- Dopo essere uscito dall'editor di testo sul terminale ho utilizzato <code> sudo vi /var/www/html/index.html </code> così da poter inserire l'intestazione "Hello DevOpsTribe!". a fine editor ho inserito queste righe: <code>
-!DOCTYPE html
-html
-head
-    title DevOpsTribe! /title
-  /head
-body
-     h1 Hello DevOpsTribe! /h1
-/body
-/html </code>
+- Dopo essere uscito dall'editor di testo sul terminale ho utilizzato <code> sudo vi /var/www/html/index.html </code> così da poter inserire l'intestazione "Hello DevOpsTribe!". a fine editor ho inserito queste righe:
+
+  
+```html
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <title> DevOpsTribe! </title>
+    </head>
+  <body>
+       <h1> Hello DevOpsTribe! </h1>
+  </body>
+  </html>
+```
+
 #### FASE 3.3
 - Dopo essere uscito e aver salvato gli editor di testo con il comando <code> sudo systemctl restart apache2 </code> ho reinstartato apache.
 - Su ubuntu ho attuato due controlli: uno in CLI ed uno in GUI
