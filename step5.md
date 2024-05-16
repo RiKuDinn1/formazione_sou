@@ -24,17 +24,17 @@
 - Sul terminale di Rocky invece ho utilizzato `sudo dnf install curl -y` per installare "curl" che servirà per contattare il webserver
 #### FASE 3.1
 - Sul terminale di ubuntu ho utilizzato `sudo vi /etc/apache2/apache2.conf` . Nell'editor di testo ho cercato <Directory /var/www/> per poi modificarlo aggiungendo queste righe: 
-    ```
-    DocumentRoot /var/www/html
+```
+  DocumentRoot /var/www/html
   <Directory /var/www/html>
     Options Indexes FollowSymLinks
     AllowOverride All
     Require all granted
   </Directory> 
-```
-- Dopo essere uscito dall'editor di testo sul terminale ho utilizzato <code>sudo vi /var/www/html/index.html</code> così da poter inserire l'intestazione "Hello DevOpsTribe!". a fine editor ho inserito queste righe:
+```  
 
-  
+- Dopo essere uscito dall'editor di testo sul terminale ho utilizzato <code>sudo vi /var/www/html/index.html</code> così da poter inserire l'intestazione "Hello DevOpsTribe!". a fine editor ho inserito queste righe:  
+
 ```html
   <!DOCTYPE html>
   <html>
