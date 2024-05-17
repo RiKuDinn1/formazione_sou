@@ -16,3 +16,8 @@
 - Per la creazione della directory useremo il comando <code>mkdir VagrantWebServer</code>
 - Visto che dobbiamo lavorare sulla directory ci sposteremo su di essa con il comando <code> cd VagrantWebServer</code>
 #
+## 3. Inizializzazione, modifica e avvio di Vagrant
+### FASE 3
+- Per inizializzare Vagrant useremo il comando <code>vagrant init</code>. Se ha funzionato ci ritroveremo un file chiamato "Vagrantfile".
+- Per modificare il file generato useremo <code>vi Vagrantfile</code>. All'interno non troveremo il file vuoto e per questo tenendo premuto il tasto "d"
+lo svuoteremo completamente.
