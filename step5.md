@@ -49,7 +49,7 @@
 ```
 
 #### FASE 3.2
-- Dopo essere uscito e aver salvato gli editor di testo con il comando <code>sudo systemctl restart apache2</code> ho reinstartato apache.
+- Dopo essere uscito e aver salvato gli editor di testo con il comando <code>sudo systemctl restart apache2</code> ho restartato apache.
 - Su Ubuntu ho attuato due controlli: uno in CLI ed uno in GUI
   1. Nella GUI sono andato sul browser digitando http://localhost così da controllare se funzionasse la pagina con il messaggio
   2. Su CLI ho digitato <code>curl http://localhost</code>
