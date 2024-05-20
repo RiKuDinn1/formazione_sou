@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Cambia directory in /var/log
 cd /var/log
 
