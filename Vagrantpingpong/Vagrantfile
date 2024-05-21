@@ -1,0 +1,86 @@
+Vagrant.configure("2") do |config|
+
+  # Definire le macchine virtuali
+  config.vm.define "node1" do |node|
+    node.box = "ubuntu/xenial64"
+
+    # Installare Docker con lo script
+    node.provision "shell", inline: <<-SHELL
+      apt-get update && apt-get install -y docker.io
+    SHELL
+
+    # Configurazione di Docker per l'esecuzione senza sudo
+    node.provision "shell", inline: <<-SHELL
+      groupadd docker
+      usermod -aG docker $USER
+    SHELL
+  end
+
+  config.vm.define "node2" do |node|
+    node.box = "ubuntu/xenial64"
+
+    
+    node.provision "shell", inline: <<-SHELL
+      apt-get update && apt-get install -y docker.io
+    SHELL
+
+    
+    node.provision "shell", inline: <<-SHELL
+      groupadd docker
+      usermod -aG docker $USER
+    SHELL
+  end
+
+  # Sincronizzare la cartella del progetto con entrambi i nodi
+  config.vm.provision "shell", inline: <<-SHELL
+    mkdir -p /vagrant
+    mount -t vboxsf Vagrantpingpong /vagrant
+  SHELL
+
+  # Script per l'esecuzione del container NodeJS
+  config.vm.provision "shell", inline: <<-SHELL
+    #!/bin/bash
+
+    set -e
+
+    # Copiare il file package.json e il file server.js nella cartella home dell'utente
+    cp /vagrant/package.json ~
+    cp /vagrant/server.js ~
+
+    # Installare le dipendenze di NodeJS
+    npm install
+
+    # Eseguire il container NodeJS
+    docker run -d -p 3000:3000 --name nodejs-app nodejs:latest node server.js
+  SHELL
+
+  # Migrazione del container ogni 60 secondi
+  config.vm.provision "shell", inline: <<-SHELL
+    #!/bin/bash
+
+    set -e
+
+    while true; do
+      # Ottenere l'indirizzo IP del nodo corrente
+      CURRENT_IP=$(ip addr | grep 'inet ' | awk '{ print $2 }' | sed 's/:/ /g' | awk '{ print $1 }')
+
+      # Ottenere l'indirizzo IP dell'altro nodo
+      if [ "$CURRENT_IP" == "$(config.vm.get("node1", "ip_address"))" ]; then
+        OTHER_NODE_IP=$(config.vm.get("node2", "ip_address"))
+      else
+        OTHER_NODE_IP=$(config.vm.get("node1", "ip_address"))
+      fi
+
+      # Controllare se il container è in esecuzione
+      if docker ps | grep -q nodejs-app; then
+        # Arrestare e rimuovere il container
+        docker rm -f  nodejs-app
+
+        # Eseguire il container sul nodo opposto
+        ssh vagrant@$OTHER_NODE_IP "docker run -d -p 3000:3000 --name nodejs-app nodejs:latest node server.js"
+      fi
+
+      sleep 60
+    done
+  SHELL
+end
