@@ -1,52 +1,52 @@
 # Exercise Vagrant ping pong
 > [!IMPORTANT]
-> Questo esercizio è svolto interamente da terminale MacOS(linux like).
+> This exercise is done entirely from a MacOS (linux like) terminal.
 # 
-### Cosa ho utilizzato per questo esercizio:
+### What I used for this exercise:
 - Vagrant
 - Docker
 - NodeJS
 #
-## 1. Installazione Vagrant
-### Installazione su MacOS
-- Ho utilizzato il comando <code>brew install vagrant</code>
-### Installazione su distribuzioni RedHat
-- Aggiorniamo il sistema con <code>sudo dnf update -y</code>.
-- Installiamo le dipendenze <code>sudo dnf install -y dnf-plugins-core</code>.
-- Aggiungiamo il repository <code>sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo</code>.
-- Installiamo Vagrant con <code>sudo dnf install -y vagrant</code>.
-### Installazione su distribuzioni Debian
-- Aggiorniamo il sistema con <code>sudo apt upgrade -y</code>.
-- Installiamo le dipendenze ```curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+## 1. Vagrant installation
+### Installation on MacOS distributions
+- I use the command <code>brew install vagrant</code>
+### Installation on RedHat distributions
+- Update the system with <code>sudo dnf update -y</code>.
+- Install the dependencies <code>sudo dnf install -y dnf-plugins-core</code>.
+- Add the repository <code>sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo</code>.
+- Install Vagrant with <code>sudo dnf install -y vagrant</code>.
+### Installation on Debian distributions
+- Update the system with <code>sudo apt upgrade -y</code>.
+- Install the dependencies ```curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"```
-- Installiamo vagrant:
+- Install Vagrant:
 <code>sudo apt update</code>
 <code>sudo apt install -y vagrant</code>
 #
-## 2. Configurazione Vagrant
-### Creazione directory e inizializzazione
-- Per la creazione della directory useremo il comando <code>mkdir Vagrantpingpong</code>.
-- Visto che dobbiamo lavorare sulla directory ci sposteremo su di essa con il comando <code>cd Vagrantpingpong</code>.
+## 2. Vagrant configuration
+### Directory creation and initialization
+- To create the directory we will use the command <code>mkdir Vagrantpingpong</code>.
+- Since we need to work on the directory we will move to it with the command <code>cd Vagrantpingpong</code>.
 #
-## 3. Inizializzazione, modifica e avvio di Vagrant
-### FASE 1
-- Per inizializzare Vagrant useremo il comando <code>vagrant init</code>. Se ha funzionato ci ritroveremo un file chiamato "Vagrantfile".
-- Per modificare il file generato useremo <code>vi Vagrantfile</code>. All'interno non troveremo il file vuoto e per questo tenendo premuto il tasto "d" lo svuoteremo completamente.
-### FASE 1.2
-- In questo file configureremo Vagrant:
+## 3. Vagrant initialization, modification and start
+### PHASE 1
+- To initialize Vagrant we will use the command <code>vagrant init</code>. If it worked we will find a file called "Vagrantfile".
+- To modify the generated file we will use <code>vi Vagrantfile</code>. Inside we will not find the empty file and for this by holding down the "d" key we will empty it completely.
+### PHASE 1.2
+- In this file we will configure Vagrant:
 ```
 Vagrant.configure("2") do |config|
 
-  # Definire le macchine virtuali
+  # Define virtual machines
   config.vm.define "node1" do |node|
     node.box = "ubuntu/xenial64"
 
-    # Installare Docker con lo script
+    # Install Docker with the script
     node.provision "shell", inline: <<-SHELL
       apt-get update && apt-get install -y docker.io
     SHELL
 
-    # Configurazione di Docker per l'esecuzione senza sudo
+    # Configure Docker to run without sudo
     node.provision "shell", inline: <<-SHELL
       groupadd docker
       usermod -aG docker $USER
@@ -68,52 +68,52 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
-  # Sincronizzare la cartella del progetto con entrambi i nodi
+  # Synchronize the project folder with both nodes
   config.vm.provision "shell", inline: <<-SHELL
     mkdir -p /vagrant
     mount -t vboxsf Vagrantpingpong /vagrant
   SHELL
 
-  # Script per l'esecuzione del container NodeJS
+  # Script for running the NodeJS container
   config.vm.provision "shell", inline: <<-SHELL
     #!/bin/bash
 
     set -e
 
-    # Copiare il file package.json e il file server.js nella cartella home dell'utente
+    # Copy the package.json and server.js file to the user's home folder
     cp /vagrant/package.json ~
     cp /vagrant/server.js ~
 
-    # Installare le dipendenze di NodeJS
+    # Install NodeJS dependencies
     npm install
 
-    # Eseguire il container NodeJS
+    # Run the NodeJS container
     docker run -d -p 3000:3000 --name nodejs-app nodejs:latest node server.js
   SHELL
 
-  # Migrazione del container ogni 60 secondi
+  # Migrate the container every 60 seconds
   config.vm.provision "shell", inline: <<-SHELL
     #!/bin/bash
 
     set -e
 
     while true; do
-      # Ottenere l'indirizzo IP del nodo corrente
+      # Get the IP address of the current node
       CURRENT_IP=$(ip addr | grep 'inet ' | awk '{ print $2 }' | sed 's/:/ /g' | awk '{ print $1 }')
 
-      # Ottenere l'indirizzo IP dell'altro nodo
+      # Get the IP address of the other node
       if [ "$CURRENT_IP" == "$(config.vm.get("node1", "ip_address"))" ]; then
         OTHER_NODE_IP=$(config.vm.get("node2", "ip_address"))
       else
         OTHER_NODE_IP=$(config.vm.get("node1", "ip_address"))
       fi
 
-      # Controllare se il container è in esecuzione
+      # Check if the container is running
       if docker ps | grep -q nodejs-app; then
         # Arrestare e rimuovere il container
         docker rm -f  nodejs-app
 
-        # Eseguire il container sul nodo opposto
+        # Run the container on the opposite node
         ssh vagrant@$OTHER_NODE_IP "docker run -d -p 3000:3000 --name nodejs-app nodejs:latest node server.js"
       fi
 
@@ -122,13 +122,13 @@ Vagrant.configure("2") do |config|
   SHELL
 end
 ```
-### FASE 1.2
-- Dopo aver salvato il "Vagrantfile" dobbiamo creare il file package.json con <code>sudo vi package.json</code> e all'interno inserire:
+### PHASE 1.2
+- After saving the "Vagrantfile" we must create the package.json file with <code>sudo vi package.json</code> and insert:
 ```
   {
   "name": "node-ping-pong",
   "version": "1.0.0",
-  "description": "Esempio di applicazione NodeJS per Vagrant",
+  "description": "NodeJS application example for Vagrant",
   "scripts": {
     "start": "node server.js"
   },
@@ -137,8 +137,8 @@ end
   }
 }
 ```
-### FASE 1.3
-- Per avviare Vagrant useremo il comando <code>vagrant up</code>.
-- Per controllare gli indirizzi ip dei nodi faremo <code>vagrant ssh-config node1</code> o <code>vagrant ssh-config node2</code> e andando sul browser digitando http://<IndirizzoIpNodo>:3030" controlleremo che tutto sia funzionante.
+### PHASE 1.3
+- To start Vagrant we will use the <code>vagrant up</code> command.
+- To check the IP addresses of the nodes we will do <code>vagrant ssh-config node1</code> or <code>vagrant ssh-config node2</code> and by going to the browser typing http://<NodeIpAddress>:3030" we will check that everything is working.
 
 
