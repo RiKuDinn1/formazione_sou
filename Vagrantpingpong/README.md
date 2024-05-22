@@ -39,30 +39,30 @@ Vagrant.configure("2") do |config|
 
   # Define virtual machines
   config.vm.define "node1" do |node|
-    node.box = "ubuntu/xenial64"
+    node.vm.box = "ubuntu/xenial64"
 
     # Install Docker with the script
-    node.provision "shell", inline: <<-SHELL
+    node.vm.provision "shell", inline: <<-SHELL
       apt-get update && apt-get install -y docker.io
     SHELL
 
     # Configure Docker to run without sudo
-    node.provision "shell", inline: <<-SHELL
+    node.vm.provision "shell", inline: <<-SHELL
       groupadd docker
       usermod -aG docker $USER
     SHELL
   end
 
   config.vm.define "node2" do |node|
-    node.box = "ubuntu/xenial64"
+    node.vm.box = "ubuntu/xenial64"
 
     
-    node.provision "shell", inline: <<-SHELL
+    node.vm.provision "shell", inline: <<-SHELL
       apt-get update && apt-get install -y docker.io
     SHELL
 
     
-    node.provision "shell", inline: <<-SHELL
+    node.vm.provision "shell", inline: <<-SHELL
       groupadd docker
       usermod -aG docker $USER
     SHELL
