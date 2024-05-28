@@ -55,7 +55,7 @@ config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.    ss
 end
 
 ```
-### PHASE 1.2
+### PHASE 1.3
 - After saving the "Vagrantfile" we must create the provision node file 1 and 2 with <code>sudo vi provision-node1.sh</code> and <code>sudo vi provision-node2.sh</code>. insert:
 ```
  #!/bin/bash
@@ -77,7 +77,7 @@ sudo adduser riku
 sudo usermod -aG sudo,docker riku
 
 ```
-### PHASE 1.3
+### PHASE 1.4
 - we create the migration.sh script to start the migration between the two nodes every 60 seconds:
 
 ```
@@ -115,7 +115,7 @@ while true; do
 done
 ```
 
-### PHASE 1.4
+### PHASE 1.5
 - To start Vagrant we will use the <code>vagrant up</code> command.
 - After starting the migration script with <code>sh migration.sh</code> we will notice how every 60 seconds one node at a time will create, stop and destroy its container to start it on the other node
 
