@@ -5,7 +5,7 @@
 ### What I used for this exercise:
 - Vagrant
 - Docker
-- NodeJS
+- ealen/echo-server
 #
 ## 1. Vagrant installation
 ### Installation on MacOS distributions
@@ -36,109 +36,87 @@ sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(l
 - In this file we will configure Vagrant:
 ```
 Vagrant.configure("2") do |config|
-
-  # Define virtual machines
-  config.vm.define "node1" do |node|
-    node.vm.box = "ubuntu/xenial64"
-
-    # Install Docker with the script
-    node.vm.provision "shell", inline: <<-SHELL
-      apt-get update && apt-get install -y docker.io
-    SHELL
-
-    # Configure Docker to run without sudo
-    node.vm.provision "shell", inline: <<-SHELL
-      groupadd docker
-      usermod -aG docker $USER
-    SHELL
-  end
-
-  config.vm.define "node2" do |node|
-    node.vm.box = "ubuntu/xenial64"
-
-    
-    node.vm.provision "shell", inline: <<-SHELL
-      apt-get update && apt-get install -y docker.io
-    SHELL
-
-    
-    node.vm.provision "shell", inline: <<-SHELL
-      groupadd docker
-      usermod -aG docker $USER
-    SHELL
-  end
-
-  # Synchronize the project folder with both nodes
-  config.vm.provision "shell", inline: <<-SHELL
-    mkdir -p /vagrant
-    mount -t vboxsf Vagrantpingpong /vagrant
-  SHELL
-
-  # Script for running the NodeJS container
-  config.vm.provision "shell", inline: <<-SHELL
-    #!/bin/bash
-
-    set -e
-
-    # Copy the package.json and server.js file to the user's home folder
-    cp /vagrant/package.json ~
-    cp /vagrant/server.js ~
-
-    # Install NodeJS dependencies
-    npm install
-
-    # Run the NodeJS container
-    docker run -d -p 3000:3000 --name nodejs-app nodejs:latest node server.js
-  SHELL
-
-  # Migrate the container every 60 seconds
-  config.vm.provision "shell", inline: <<-SHELL
-    #!/bin/bash
-
-    set -e
-
-    while true; do
-      # Get the IP address of the current node
-      CURRENT_IP=$(ip addr | grep 'inet ' | awk '{ print $2 }' | sed 's/:/ /g' | awk '{ print $1 }')
-
-      # Get the IP address of the other node
-      if [ "$CURRENT_IP" == "$(config.vm.get("node1", "ip_address"))" ]; then
-        OTHER_NODE_IP=$(config.vm.get("node2", "ip_address"))
-      else
-        OTHER_NODE_IP=$(config.vm.get("node1", "ip_address"))
-      fi
-
-      # Check if the container is running
-      if docker ps | grep -q nodejs-app; then
-        # Arrestare e rimuovere il container
-        docker rm -f  nodejs-app
-
-        # Run the container on the opposite node
-        ssh vagrant@$OTHER_NODE_IP "docker run -d -p 3000:3000 --name nodejs-app nodejs:latest node server.js"
-      fi
-
-      sleep 60
-    done
-  SHELL
+config.ssh.insert_key = false
+config.ssh.private_key_path = ['~/.vagrant.d/insecure_private_key', '~/.ss    h/id_rsa']
+config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.    ssh/authorized_keys"
+# Define node1
+  config.vm.define "node1" do |node1|
+    node1.vm.box = "ubuntu/bionic64"
+    node1.vm.network "private_network", ip: "192.168.30.10"
+    node1.vm.provision "shell", path: "provision-node1.sh"
+   end
+ 
+# Define node2
+  config.vm.define "node2" do |node2|
+    node2.vm.box = "ubuntu/bionic64"
+    node2.vm.network "private_network", ip: "192.168.30.20"
+    node2.vm.provision "shell", path: "provision-node2.sh"
+   end
 end
+
 ```
 ### PHASE 1.2
-- After saving the "Vagrantfile" we must create the package.json file with <code>sudo vi package.json</code> and insert:
+- After saving the "Vagrantfile" we must create the provision node file 1 and 2 with <code>sudo vi provision-node1.sh</code> and <code>sudo vi provision-node2.sh</code>. insert:
 ```
-  {
-  "name": "node-ping-pong",
-  "version": "1.0.0",
-  "description": "NodeJS application example for Vagrant",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.17.1"
-  }
-}
+ #!/bin/bash
+
+# Installiamo docker e curl
+sudo apt-get update
+sudo apt-get install -y docker.io
+sudo apt-get install curl
+
+# Startiamo docker e pulliamo l'immagine del container
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo docker pull ealen/echo-server
+
+# Crea un nuovo utente chiamato "nomeutente"
+sudo adduser riku
+
+# Aggiungi l'utente al gruppo "sudo" per i privilegi di root
+sudo usermod -aG sudo,docker riku
+
 ```
 ### PHASE 1.3
+- we create the migration.sh script to start the migration between the two nodes every 60 seconds:
+
+```
+#!/bin/bash
+
+# IPs dei nodi
+NODE1_IP="192.168.30.10"
+NODE2_IP="192.168.30.20"
+
+# Nome del container
+CONTAINER_NAME="ealen-container"
+
+# Comando per avviare il container
+ssh riku@$NODE1_IP "docker run -d -p 3000:80 --name $CONTAINER_NAME ealen/echo-server"
+while true; do
+  # Verifica se il container è in esecuzione su node1
+  ssh riku@$NODE1_IP "docker ps | grep $CONTAINER_NAME"
+
+        if curl 192.168.30.10:3000 ;  then
+
+                # Arresta il container su node1
+                ssh riku@$NODE1_IP "docker stop $CONTAINER_NAME && docker rm $CONTAINER_NAME"
+                # Avvia il container su node
+                ssh riku@$NODE2_IP "docker run -d -p 3000:80 --name $CONTAINER_NAME ealen/echo-server"
+
+        else
+
+                # Arresta il container su node2
+                ssh riku@$NODE2_IP "docker stop $CONTAINER_NAME && docker rm $CONTAINER_NAME"
+                # Avvia il container su node1
+                ssh riku@$NODE1_IP "docker run -d -p 3000:80 --name $CONTAINER_NAME ealen/echo-server"
+        fi
+            # Attende 60 secondi prima di migrare di nuovo
+            sleep 60
+done
+```
+
+### PHASE 1.4
 - To start Vagrant we will use the <code>vagrant up</code> command.
-- To check the IP addresses of the nodes we will do <code>vagrant ssh-config node1</code> or <code>vagrant ssh-config node2</code> and by going to the browser typing http://<NodeIpAddress>:3030" we will check that everything is working.
+- After starting the migration script with <code>sh migration.sh</code> we will notice how every 60 seconds one node at a time will create, stop and destroy its container to start it on the other node
 
 
