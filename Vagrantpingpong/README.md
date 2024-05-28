@@ -1,6 +1,6 @@
 # Exercise Vagrant ping pong
 > [!IMPORTANT]
-> This exercise is done entirely from a MacOS (linux like) terminal.
+> This exercise is done entirely from a MacOS (Unix like) terminal.
 # 
 ### What I used for this exercise:
 - Vagrant
