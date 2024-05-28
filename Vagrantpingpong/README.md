@@ -70,10 +70,10 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo docker pull ealen/echo-server
 
-# Crea un nuovo utente chiamato "nomeutente"
+# Crea un nuovo utente 
 sudo adduser riku
 
-# Aggiungi l'utente al gruppo "sudo" per i privilegi di root
+# Aggiungi l'utente al gruppo "sudo" e "docker" per i privilegi di root
 sudo usermod -aG sudo,docker riku
 
 ```
