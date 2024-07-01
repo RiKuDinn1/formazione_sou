@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    environment {
+        // Imposta l'URL del repository Git
+        GIT_REPO = 'https://github.com/username/formazione_sou'
+        
+        // Nome del namespace Kubernetes
+        K8S_NAMESPACE = 'formazione_sou_k8s'
+
+        // Nome del Chart Helm
+        HELM_CHART = 'charts/flask-build'
+        
+        // Nome della release Helm
+        HELM_RELEASE = 'flask-app-release'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clona il repository Git
+                git url: "${env.GIT_REPO}", branch: 'main', credentialsId: 'github-credentials'
+            }
+        }
+        
+        stage('Install Helm Chart') {
+            steps {
+                script {
+                    // Esegui l'installazione del Chart Helm
+                    sh """
+                        helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} --namespace ${K8S_NAMESPACE} --set image.tag=v1.0
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Deployment completed successfully!'
+        }
+        failure {
+            echo 'Deployment failed.'
+        }
+    }
+}
