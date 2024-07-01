@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  flask-app:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2024-07-01T12:45:20.94391+02:00"
+    description: A Helm chart for deploying a Flask application
+    digest: 2a92c4ebb71853474552e5556744b0adacde0437b334e0855a794b272f1ba2a4
+    name: flask-app
+    type: application
+    urls:
+    - https://github.com/RiKuDinn1/formazione_sou/blob/main/k8s/flask-app/charts/flask-build/flask-build/flask-app-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-07-01T12:45:20.942943+02:00"
