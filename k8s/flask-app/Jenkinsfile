@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Imposta l'URL del repository Git
-        GIT_REPO = 'https://github.com/username/formazione_sou'
+        GIT_REPO = 'https://github.com/RiKuDinn1/formazione_sou'
         
         // Nome del namespace Kubernetes
         K8S_NAMESPACE = 'formazione_sou_k8s'
@@ -12,14 +12,14 @@ pipeline {
         HELM_CHART = 'charts/flask-build'
         
         // Nome della release Helm
-        HELM_RELEASE = 'flask-app-release'
+        HELM_RELEASE = 'flask-app-release-3'
     }
 
     stages {
         stage('Checkout') {
             steps {
                 // Clona il repository Git
-                git url: "${env.GIT_REPO}", branch: 'main', credentialsId: 'github-credentials'
+                git url: "${env.GIT_REPO}", branch: 'main', credentialsId: 'GitHub'
             }
         }
         
