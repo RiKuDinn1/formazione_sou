@@ -74,7 +74,5 @@
           - /var/run/docker.sock:/var/run/docker.sock
     
     - name: Set permissions docker.sock
-      command: sudo docker exec -u root jenkins chown root:docker /var/run/docker.sock 
-
-        
+      command: sudo docker exec -u root jenkins chown root:docker /var/run/docker.sock
 

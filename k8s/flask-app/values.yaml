@@ -4,7 +4,7 @@ replicaCount: 1
 image:
   repository: rikudinn/flask-app-example 
   pullPolicy: IfNotPresent
-  tag: ""
+  tag: 'latest' 
 
 imagePullSecrets: []
 nameOverride: ""
@@ -65,11 +65,18 @@ resources: {}
 livenessProbe:
   httpGet:
     path: /
-    port: http
+    port: 8000 
+initialDelaySeconds: 180
+periodSeconds: 10
+timeoutSeconds: 5
+ 
 readinessProbe:
   httpGet:
     path: /
-    port: http
+    port: 8000 
+initialDelaySeconds: 90
+periodSeconds: 10
+timeoutSeconds: 5 
 
 autoscaling:
   enabled: false
