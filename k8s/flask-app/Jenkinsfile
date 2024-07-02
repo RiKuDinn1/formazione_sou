@@ -9,10 +9,10 @@ pipeline {
         K8S_NAMESPACE = 'formazione_sou_k8s'
 
         // Nome del Chart Helm
-        HELM_CHART = 'charts/flask-build'
+        HELM_CHART = '~/formazione_sou/k8s/flask-app'
         
         // Nome della release Helm
-        HELM_RELEASE = 'flask-app-release-3'
+        HELM_RELEASE = 'flask-track4'
     }
 
     stages {
@@ -28,7 +28,7 @@ pipeline {
                 script {
                     // Esegui l'installazione del Chart Helm
                     sh """
-                        helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} --namespace ${K8S_NAMESPACE} --set image.tag=v1.0
+                        helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} --namespace ${K8S_NAMESPACE} --set image.tag=latest
                     """
                 }
             }
