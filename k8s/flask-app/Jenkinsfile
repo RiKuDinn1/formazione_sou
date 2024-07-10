@@ -9,7 +9,7 @@ pipeline {
         K8S_NAMESPACE = 'formazione-sou'
 
         // Nome del Chart Helm
-        HELM_CHART = '~/formazione_sou/k8s/flask-app'
+        HELM_CHART = '/home/jenkins/workspace/k8s/flask-app'
         
         // Nome della release Helm
         HELM_RELEASE = 'flask-track4'
