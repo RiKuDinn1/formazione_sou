@@ -6,7 +6,7 @@ pipeline {
         GIT_REPO = 'https://github.com/RiKuDinn1/formazione_sou'
         
         // Nome del namespace Kubernetes
-        K8S_NAMESPACE = 'formazione_sou_k8s'
+        K8S_NAMESPACE = 'formazione-sou'
 
         // Nome del Chart Helm
         HELM_CHART = '~/formazione_sou/k8s/flask-app'
